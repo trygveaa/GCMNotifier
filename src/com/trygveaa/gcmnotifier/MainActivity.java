@@ -1,11 +1,10 @@
 package com.trygveaa.gcmnotifier;
 
-import com.google.android.gcm.GCMRegistrar;
-
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
+
+import com.google.android.gcm.GCMRegistrar;
 
 public class MainActivity extends Activity {
 
@@ -25,11 +24,5 @@ public class MainActivity extends Activity {
 		} else {
 			Log.v(TAG, "Already registered with id: " + regId);
 		}
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
 	}
 }
