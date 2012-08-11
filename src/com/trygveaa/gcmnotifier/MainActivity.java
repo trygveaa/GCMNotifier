@@ -9,6 +9,7 @@ import android.view.Menu;
 
 public class MainActivity extends Activity {
 
+	private static final String TAG = "GCMNotifier";
 	private static final String SENDER_ID = "";
 
 	@Override
@@ -22,7 +23,7 @@ public class MainActivity extends Activity {
 		if (regId.equals("")) {
 			GCMRegistrar.register(this, SENDER_ID);
 		} else {
-			Log.v("GCMNotifier", "Already registered");
+			Log.v(TAG, "Already registered with id: " + regId);
 		}
 	}
 
