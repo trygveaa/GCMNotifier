@@ -1,8 +1,12 @@
 package com.trygveaa.gcmnotifier;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
@@ -10,6 +14,8 @@ import com.google.android.gcm.GCMBaseIntentService;
 public class GCMIntentService extends GCMBaseIntentService {
 
 	private static final String TAG = "GCMNotifier";
+
+	private static int notificationId = 1;
 
 	@Override
 	protected void onError(Context context, String errorId) {
@@ -19,7 +25,26 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	protected void onMessage(Context context, Intent intent) {
 		Bundle data = intent.getExtras();
-		Log.d(TAG, "Message received: " + data.getString("title") + " " + data.getString("body"));
+		String title = data.getString("title");
+		String body = data.getString("body");
+
+		Intent notificationIntent = new Intent();
+		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+
+		Notification notification = new NotificationCompat.Builder(context)
+		.setTicker(title + " " + body)
+		.setContentTitle(title)
+		.setContentText(body)
+		.setSmallIcon(R.drawable.ic_stat_notification)
+		.setLights(0xff0000ff, 1000, 1000)
+		.setVibrate(new long[] { 0, 200, 400, 200 })
+		.setDefaults(Notification.DEFAULT_SOUND)
+		.setContentIntent(contentIntent)
+		.setAutoCancel(true)
+		.getNotification();
+
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.notify(notificationId++, notification);
 	}
 
 	@Override

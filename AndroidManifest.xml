@@ -7,6 +7,7 @@
         android:minSdkVersion="10"
         android:targetSdkVersion="15" />
 
+    <!-- Permissions for GCM -->
     <permission
         android:name="com.trygveaa.gcmnotifier.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
@@ -21,6 +22,9 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <!-- Keeps the processor from sleeping when a message is received. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Other permissions -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:icon="@drawable/ic_stat_notification"
