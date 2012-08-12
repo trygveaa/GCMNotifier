@@ -4,5 +4,12 @@
     <string name="app_name">GCMNotifier</string>
     <string name="registered_with_id">Registered with id:</string>
     <string name="preferences">Preferences</string>
+    <string name="intent_click_notification_text">Intent when clicking notification</string>
+    <string name="intent_click_action_key">intent_click_action</string>
+    <string name="intent_click_action_text">Intent action</string>
+    <string name="intent_click_action_default">android.intent.action.VIEW</string>
+    <string name="intent_click_uri_key">intent_click_uri</string>
+    <string name="intent_click_uri_text">Intent uri</string>
+    <string name="intent_click_uri_default"></string>
 
 </resources>
