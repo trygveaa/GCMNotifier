@@ -33,8 +33,11 @@ public class GCMIntentService extends GCMBaseIntentService {
 				String title = data.getString("title");
 				String body = data.getString("body");
 
-				Intent notificationIntent = new Intent();
-				PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+				Intent notificationIntent = new Intent("com.trygveaa.gcmnotifier.CLICK_NOTIFICATION");
+				PendingIntent contentIntent = PendingIntent.getBroadcast(context, 0, notificationIntent, 0);
+
+				Intent cancelIntent = new Intent("com.trygveaa.gcmnotifier.CANCEL_NOTIFICATIONS");
+				PendingIntent deleteIntent = PendingIntent.getBroadcast(context, 0, cancelIntent, 0);
 
 				Notification notification = new NotificationCompat.Builder(context)
 				.setTicker(title + " " + body)
@@ -46,6 +49,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 				.setDefaults(Notification.DEFAULT_SOUND)
 				.setContentIntent(contentIntent)
 				.setAutoCancel(true)
+				.setDeleteIntent(deleteIntent)
 				.getNotification();
 
 				notificationManager.notify(notificationId++, notification);
