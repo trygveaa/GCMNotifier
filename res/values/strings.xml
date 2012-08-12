@@ -3,5 +3,6 @@
 
     <string name="app_name">GCMNotifier</string>
     <string name="registered_with_id">Registered with id:</string>
+    <string name="preferences">Preferences</string>
 
 </resources>
