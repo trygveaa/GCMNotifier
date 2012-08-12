@@ -25,26 +25,34 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	protected void onMessage(Context context, Intent intent) {
 		Bundle data = intent.getExtras();
-		String title = data.getString("title");
-		String body = data.getString("body");
+		String action = data.getString("action");
+		if (action != null) {
+			NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-		Intent notificationIntent = new Intent();
-		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+			if (action.equals("notify")) {
+				String title = data.getString("title");
+				String body = data.getString("body");
 
-		Notification notification = new NotificationCompat.Builder(context)
-		.setTicker(title + " " + body)
-		.setContentTitle(title)
-		.setContentText(body)
-		.setSmallIcon(R.drawable.ic_stat_notification)
-		.setLights(0xff0000ff, 1000, 1000)
-		.setVibrate(new long[] { 0, 200, 400, 200 })
-		.setDefaults(Notification.DEFAULT_SOUND)
-		.setContentIntent(contentIntent)
-		.setAutoCancel(true)
-		.getNotification();
+				Intent notificationIntent = new Intent();
+				PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 
-		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.notify(notificationId++, notification);
+				Notification notification = new NotificationCompat.Builder(context)
+				.setTicker(title + " " + body)
+				.setContentTitle(title)
+				.setContentText(body)
+				.setSmallIcon(R.drawable.ic_stat_notification)
+				.setLights(0xff0000ff, 1000, 1000)
+				.setVibrate(new long[] { 0, 200, 400, 200 })
+				.setDefaults(Notification.DEFAULT_SOUND)
+				.setContentIntent(contentIntent)
+				.setAutoCancel(true)
+				.getNotification();
+
+				notificationManager.notify(notificationId++, notification);
+			} else if (action.equals("cancel")) {
+				notificationManager.cancelAll();
+			}
+		}
 	}
 
 	@Override
