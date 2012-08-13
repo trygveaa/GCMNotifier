@@ -36,7 +36,6 @@ public class MainActivity extends Activity {
 		});
 
 		GCMRegistrar.checkDevice(this);
-		GCMRegistrar.checkManifest(this);
 		final String regId = GCMRegistrar.getRegistrationId(this);
 		if (regId.equals("")) {
 			GCMRegistrar.register(this, SENDER_ID);
