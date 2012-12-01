@@ -5,17 +5,25 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
 
-public class GCMIntentService extends GCMBaseIntentService {
+public class GCMIntentService extends GCMBaseIntentService implements SensorEventListener {
 
 	private static final String TAG = "GCMNotifier";
 
+	private static final Object syncObject = new Object();
+
 	private static int notificationId = 1;
+
+	private float[] accelerometerValues;
 
 	@Override
 	protected void onError(Context context, String errorId) {
@@ -26,12 +34,34 @@ public class GCMIntentService extends GCMBaseIntentService {
 	protected void onMessage(Context context, Intent intent) {
 		Bundle data = intent.getExtras();
 		String action = data.getString("action");
+
 		if (action != null) {
 			NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
 			if (action.equals("notify")) {
 				String title = data.getString("title");
 				String body = data.getString("body");
+				boolean vibration = true;
+
+				SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+				if (sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+						SensorManager.SENSOR_DELAY_NORMAL)) {
+
+					synchronized (syncObject) {
+						try {
+							syncObject.wait();
+						} catch (InterruptedException e) {
+						}
+					}
+
+					sensorManager.unregisterListener(this);
+
+					if (accelerometerValues[0] < 1 && accelerometerValues[0] > -1 && accelerometerValues[1] < 1
+							&& accelerometerValues[1] > -1) {
+						vibration = false;
+					}
+				}
 
 				Intent notificationIntent = new Intent("com.trygveaa.gcmnotifier.CLICK_NOTIFICATION");
 				PendingIntent contentIntent = PendingIntent.getBroadcast(context, 0, notificationIntent, 0);
@@ -39,20 +69,23 @@ public class GCMIntentService extends GCMBaseIntentService {
 				Intent cancelIntent = new Intent("com.trygveaa.gcmnotifier.CANCEL_NOTIFICATIONS");
 				PendingIntent deleteIntent = PendingIntent.getBroadcast(context, 0, cancelIntent, 0);
 
-				Notification notification = new NotificationCompat.Builder(context)
-				.setTicker(title + " " + body)
-				.setContentTitle(title)
-				.setContentText(body)
-				.setSmallIcon(R.drawable.ic_stat_notification)
-				.setLights(0xff0000ff, 1000, 1000)
-				.setVibrate(new long[] { 0, 200, 400, 200 })
-				.setDefaults(Notification.DEFAULT_SOUND)
-				.setContentIntent(contentIntent)
-				.setAutoCancel(true)
-				.setDeleteIntent(deleteIntent)
-				.getNotification();
+				NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
+					.setTicker(title + " " + body)
+					.setContentTitle(title)
+					.setContentText(body)
+					.setSmallIcon(R.drawable.ic_stat_notification)
+					.setLights(0xff0000ff, 1000, 1000)
+					.setContentIntent(contentIntent)
+					.setAutoCancel(true)
+					.setDeleteIntent(deleteIntent);
 
-				notificationManager.notify(notificationId++, notification);
+				if (vibration) {
+					notificationBuilder
+						.setVibrate(new long[] { 0, 200, 400, 200 })
+						.setDefaults(Notification.DEFAULT_SOUND);
+				}
+
+				notificationManager.notify(notificationId++, notificationBuilder.getNotification());
 			} else if (action.equals("cancel")) {
 				notificationManager.cancelAll();
 			}
@@ -67,5 +100,20 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	protected void onUnregistered(Context context, String registrationId) {
 		Log.v(TAG, "Device unregistered: " + registrationId);
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+			accelerometerValues = event.values;
+
+			synchronized (syncObject) {
+				syncObject.notifyAll();
+			}
+		}
 	}
 }
