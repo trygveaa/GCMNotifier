@@ -41,6 +41,8 @@ public class GCMIntentService extends GCMBaseIntentService implements SensorEven
 			if (action.equals("notify")) {
 				String title = data.getString("title");
 				String body = data.getString("body");
+				String subtext = data.getString("subtext");
+				String type = data.getString("type");
 				boolean vibration = true;
 
 				SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -73,11 +75,22 @@ public class GCMIntentService extends GCMBaseIntentService implements SensorEven
 					.setTicker(title + " " + body)
 					.setContentTitle(title)
 					.setContentText(body)
-					.setSmallIcon(R.drawable.social_chat)
-					.setLights(0xff0000ff, 1000, 1000)
+					.setSubText(subtext)
 					.setContentIntent(contentIntent)
 					.setAutoCancel(true)
-					.setDeleteIntent(deleteIntent);
+					.setDeleteIntent(deleteIntent)
+					.setStyle(new NotificationCompat.BigTextStyle()
+						.bigText(body));
+
+				if ("mail".equals(type)) {
+					notificationBuilder
+						.setSmallIcon(R.drawable.content_email)
+						.setLights(0xffff0000, 1000, 1000);
+				} else {
+					notificationBuilder
+						.setSmallIcon(R.drawable.social_chat)
+						.setLights(0xff0000ff, 1000, 1000);
+				}
 
 				if (vibration) {
 					notificationBuilder
@@ -85,7 +98,7 @@ public class GCMIntentService extends GCMBaseIntentService implements SensorEven
 						.setDefaults(Notification.DEFAULT_SOUND);
 				}
 
-				notificationManager.notify(notificationId++, notificationBuilder.getNotification());
+				notificationManager.notify(notificationId++, notificationBuilder.build());
 			} else if (action.equals("cancel")) {
 				notificationManager.cancelAll();
 			}
