@@ -73,7 +73,7 @@ public class GCMIntentService extends GCMBaseIntentService implements SensorEven
 					.setTicker(title + " " + body)
 					.setContentTitle(title)
 					.setContentText(body)
-					.setSmallIcon(R.drawable.ic_stat_notification)
+					.setSmallIcon(R.drawable.social_chat)
 					.setLights(0xff0000ff, 1000, 1000)
 					.setContentIntent(contentIntent)
 					.setAutoCancel(true)
