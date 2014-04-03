@@ -4,6 +4,17 @@ use strict;
 use warnings;
 
 use LWP::UserAgent;
+use Getopt::Long;
+Getopt::Long::Configure('bundling');
+
+my ($type, $subtext, $verbose);
+
+die "Usage: $0 [-t type] [-s subtext] action title body\n"
+    unless GetOptions(
+    't|type=s'  => \$type,
+    's|subtext=s'  => \$subtext,
+    'v|verbose' => \$verbose,
+    );
 
 my $conf_dir = $ENV{'HOME'} . '/div/gcmnotify/';
 
@@ -21,7 +32,10 @@ my $content;
 if (not defined $action) {
     die 'You must specify an action';
 } elsif ($action eq 'notify') {
-    $content = '"data": { "action": "notify", "title": "' . $ARGV[1] . '", "body": "' . $ARGV[2] . '" }';
+    $content = '"data": { "action": "notify", "title": "' . $ARGV[1] . '", "body": "' . $ARGV[2] . '"';
+    $content .= ', "type": "' . $type . '"' if $type;
+    $content .= ', "subtext": "' . $subtext . '"' if $subtext;
+    $content .= ' }';
 } elsif ($action eq 'cancel') {
     $content = '"data": { "action": "cancel" }';
 } else {
@@ -35,4 +49,4 @@ $req->content('{ "registration_ids": ["' . join('", "', @devices) . '"], ' . $co
 
 my $ua = LWP::UserAgent->new;
 my $res = $ua->request($req);
-print $res->as_string;
+print $res->as_string if $verbose;
