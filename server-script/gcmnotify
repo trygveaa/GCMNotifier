@@ -27,17 +27,29 @@ close FILE_DEVICES;
 chomp($api_key);
 chomp(@devices);
 
+my $sent = $conf_dir . 'sent';
 my $action = $ARGV[0];
 my $content;
 if (not defined $action) {
     die 'You must specify an action';
 } elsif ($action eq 'notify') {
+    open FH, '>', $sent;
+    close FH;
     $content = '"data": { "action": "notify", "title": "' . $ARGV[1] . '", "body": "' . $ARGV[2] . '"';
     $content .= ', "type": "' . $type . '"' if $type;
     $content .= ', "subtext": "' . $subtext . '"' if $subtext;
     $content .= ' }';
 } elsif ($action eq 'cancel') {
-    $content = '"data": { "action": "cancel" }';
+    if (-e $sent) {
+        unlink($sent);
+        $content = '"data": { "action": "cancel" }';
+    } else {
+        exit;
+    }
+} elsif ($action eq 'touch') {
+    open FH, '>', $sent;
+    close FH;
+    exit;
 } else {
     die 'Not a recognized action';
 }
